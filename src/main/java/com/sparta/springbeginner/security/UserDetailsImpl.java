@@ -1,16 +1,22 @@
 package com.sparta.springbeginner.security;
 
 import com.sparta.springbeginner.domain.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
 
+
 //회원정보 DB에서 찾은 그 유저네임으로 조회된 해당 회원의 객체
+@Component
 public class UserDetailsImpl implements UserDetails {
     private final User user;
+
     public UserDetailsImpl(User user) {
         this.user = user;
     }

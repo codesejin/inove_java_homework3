@@ -1,5 +1,6 @@
 package com.sparta.springbeginner.service;
 
+import com.sparta.springbeginner.dto.LoginRequesetDto;
 import com.sparta.springbeginner.dto.ResponseDto;
 import com.sparta.springbeginner.dto.SignUpRequestDto;
 import com.sparta.springbeginner.dto.TokenDto;
@@ -27,7 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtAuthProvider jwtAuthProvider;
+    private final UserDetailsImpl userDetails;
 
     private final JwtTokenUtils jwtTokenUtils;
 
@@ -35,7 +36,7 @@ public class UserService {
     public ResponseDto<?> registerUser(SignUpRequestDto signUpRequestDto) {
         String username = signUpRequestDto.getUsername();
         // 닉네임 중복 체크
-        Optional<User> found = userRepository.findByNickname(username);
+        Optional<User> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
             return ResponseDto.fail("USERNAME ALREADY EXIST", "중복된 닉네임이 존재합니다.");
         }
@@ -78,15 +79,32 @@ public class UserService {
 //        return ResponseDto.success(nickname);
     }
 
-    // 로그인
-    public ResponseDto<?> loginUser(SignUpRequestDto requestDto, HttpServletResponse response) {
-        User user = userRepository.findByNickname(requestDto.getUsername()).orElseThrow(
-                () -> new RuntimeException("사용자가 존재하지 않습니다.")
-        );
-        TokenDto tokenDto = jwtTokenUtils.generateJwtToken(new UserDetailsImpl(user));
-        response.addHeader("Access-Token",tokenDto.getAccessToken());
-        response.addHeader("Refresh-Token",tokenDto.getRefreshToken());
+//     로그인
+//    public ResponseDto<?> loginUser(SignUpRequestDto requestDto, HttpServletResponse response) {
+//        User user = userRepository.findByNickname(requestDto.getUsername()).orElseThrow(
+//                () -> new RuntimeException("사용자가 존재하지 않습니다.")
+//        );
+//
+//        TokenDto tokenDto = jwtTokenUtils.generateJwtToken(userDetails);
+//        response.addHeader("Access-Token",tokenDto.getAccessToken());
+//        response.addHeader("Refresh-Token",tokenDto.getRefreshToken());
+//
+//        return ResponseDto.success(user);
+//    }
 
-        return ResponseDto.success(user);
+    //로그인
+    @Transactional
+    public ResponseDto<?> loginUser(LoginRequesetDto loginRequesetDto){
+        String username = loginRequesetDto.getUsername();
+        Optional<User> foundId = userRepository.findByUsername(username);
+        if (!username.equals(foundId)){
+            return ResponseDto.fail("USERNAME DOES NOT MATCH","유저 이름이 맞지 않습니다.");
+        }
+        String password = loginRequesetDto.getPassword();
+        Optional<User> foundPw = userRepository.findByPassword(password);
+        if (!password.equals(foundPw)){
+            return ResponseDto.fail("PASSWORD DOES NOT MATCH", "비밀번호가 맞지 않습니다.");
+        }
+        return ResponseDto.success(username);
     }
 }

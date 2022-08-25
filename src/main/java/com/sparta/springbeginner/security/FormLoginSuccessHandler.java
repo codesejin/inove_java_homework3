@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 
 @NoArgsConstructor
-@Component
 //폼로그인이 성공했을시 여기로 들어옴
 public class FormLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
@@ -38,7 +37,7 @@ public class FormLoginSuccessHandler extends SavedRequestAwareAuthenticationSucc
         //AccessToken 생성
         final String accessJwtToken = JwtTokenUtils.generateJwtToken(userDetails);
         //RefreshToken 생성 -> DB에 저장
-        final String refreshJwtToken = JwtTokenUtils.generateREJwtToken(userDetails);
+        final String refreshJwtToken = JwtTokenUtils.generateJwtToken(userDetails);
 
         // Response Header에 access, refresh  토근을 담아줌
         response.addHeader(JwtProperties.AUTH_HEADER, JwtProperties.TOKEN_PREFIX + accessJwtToken);

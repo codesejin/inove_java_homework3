@@ -26,9 +26,7 @@ public class UserController {
 
     @PostMapping("/api/member/login")
     // HttpServletResponse response 헤더를 넘겨서 헤더에 담는 것(?)
-    public ResponseDto<?> loginUser(@RequestBody SignUpRequestDto requestDto, HttpServletResponse response){
-        return userService.loginUser(requestDto, response);
+    public ResponseDto<?> loginUser(@RequestBody SignUpRequestDto requestDto){
+        return null;
     }
-
-
 }

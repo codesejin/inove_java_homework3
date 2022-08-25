@@ -43,7 +43,7 @@ public class JwtDecoder {
         DecodedJWT jwt = null;
 
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+            Algorithm algorithm = Algorithm.HMAC512(JwtProperties.SECRET_KEY);
             JWTVerifier verifier = JWT
                     .require(algorithm)
                     .build();

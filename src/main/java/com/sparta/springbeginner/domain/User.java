@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Setter
 @Getter
 @Entity(name="users")
+@Component
 public class User extends Timestamped {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
