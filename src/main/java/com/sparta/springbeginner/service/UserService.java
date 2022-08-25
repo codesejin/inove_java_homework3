@@ -2,12 +2,18 @@ package com.sparta.springbeginner.service;
 
 import com.sparta.springbeginner.dto.ResponseDto;
 import com.sparta.springbeginner.dto.SignUpRequestDto;
+import com.sparta.springbeginner.dto.TokenDto;
+import com.sparta.springbeginner.jwt.JwtTokenUtils;
+import com.sparta.springbeginner.provider.FormLoginAuthProvider;
+import com.sparta.springbeginner.provider.JwtAuthProvider;
 import com.sparta.springbeginner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.sparta.springbeginner.domain.User;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -19,23 +25,27 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final JwtAuthProvider jwtAuthProvider;
+
+    private final JwtTokenUtils jwtTokenUtils;
+
     @Transactional
     public ResponseDto<?> registerUser(SignUpRequestDto signUpRequestDto) {
-        String nickname = signUpRequestDto.getNickname();
+        String username = signUpRequestDto.getUsername();
         // 닉네임 중복 체크
-        Optional<User> found = userRepository.findByNickname(nickname);
+        Optional<User> found = userRepository.findByNickname(username);
         if (found.isPresent()) {
-            return ResponseDto.fail("NICKNAME ALREADY EXIST", "중복된 닉네임이 존재합니다.");
+            return ResponseDto.fail("USERNAME ALREADY EXIST", "중복된 닉네임이 존재합니다.");
         }
         /*
         닉네임 체크
         - 최소 4자이상, 최대 12자 이하
         - 알파벳 대소문자, 숫자(0~9)로만 구성
          */
-        String nickPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{4,12}$";
-        Matcher nickMatcher = Pattern.compile(nickPattern).matcher(nickname);
-        if(!nickMatcher.matches()){
-            return ResponseDto.fail("NICKNAME WRONG FORMAT", "4-12자의 영문 대소문자, 숫자를 사용해야 합니다.");
+        String UserNamePattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{4,12}$";
+        Matcher nnMatcher = Pattern.compile(UserNamePattern).matcher(username);
+        if(!nnMatcher.matches()){
+            return ResponseDto.fail("USERNAME WRONG FORMAT", "4-12자의 영문 대소문자, 숫자를 사용해야 합니다.");
         }
 
         // 비밀번호 체크
@@ -57,12 +67,20 @@ public class UserService {
             return ResponseDto.fail("PASSWORD MISMATCH", "비밀번호와 비밀번호 확인이 일치하지 않습니다.");
 
         } else {
-            signUpRequestDto.setNickname(nickname);
+            signUpRequestDto.setUsername(username);
             signUpRequestDto.setPassword(passwordEncoder.encode(password));
             return ResponseDto.success(userRepository.save(new User(signUpRequestDto)));
         }
 //        User user = new User(signUpRequestDto);
 //        userRepository.save(user);
 //        return ResponseDto.success(nickname);
+    }
+
+    // 로그인
+    public ResponseDto<?> loginUser(SignUpRequestDto requestDto, HttpServletResponse response) {
+        User user = userRepository.findByNickname(requestDto.getUsername()).orElseThrow(
+                () -> new RuntimeException("사용자가 존재하지 않습니다.")
+        );
+        TokenDto tokenDto = jwtTokenUtils.
     }
 }

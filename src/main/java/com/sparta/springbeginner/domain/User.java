@@ -20,13 +20,13 @@ public class User extends Timestamped {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String nickname;
+    private String username;
     @JsonIgnore
     @Column(nullable = false, unique = true)
     private String password;
 
     public User(SignUpRequestDto signUpRequestDto) {
-        this.nickname = signUpRequestDto.getNickname();
+        this.username = signUpRequestDto.getUsername();
         this.password = signUpRequestDto.getPassword();
         //super은 안되느닞
         this.createdAt = getCreatedAt();
