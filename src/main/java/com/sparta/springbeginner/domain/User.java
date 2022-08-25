@@ -25,6 +25,14 @@ public class User extends Timestamped {
     @Column(nullable = false, unique = true)
     private String password;
 
+    @JsonIgnore
+    @Column
+    private String refreshToken;
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public User(SignUpRequestDto signUpRequestDto) {
         this.username = signUpRequestDto.getUsername();
         this.password = signUpRequestDto.getPassword();

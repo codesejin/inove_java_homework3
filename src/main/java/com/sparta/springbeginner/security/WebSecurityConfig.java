@@ -1,8 +1,12 @@
 package com.sparta.springbeginner.security;
 
 
+import com.sparta.springbeginner.filter.FormLoginFilter;
+import com.sparta.springbeginner.provider.FormLoginAuthProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,11 +17,44 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration //스프링이 처음 기동할때 설정해주는
 @EnableWebSecurity // 스프링 Security 지원을 가능하게 함
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
     //패스워드 암호화 구현
     @Bean
     public BCryptPasswordEncoder encodePassword() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public FormLoginAuthProvider loginAuthProvider() {
+        return new FormLoginAuthProvider(encodePassword());
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) {
+        auth
+                .authenticationProvider(loginAuthProvider());
+    }
+    @Bean
+    public FormLoginSuccessHandler formLoginSuccessHandler() {
+        return new FormLoginSuccessHandler();
+    }
+
+    // /blog/members/login으로 접속시에 LoginFilter로 이동하도록하는 빈!
+    @Bean
+    public FormLoginFilter loginFilter() throws Exception {
+        FormLoginFilter loginFilter = new FormLoginFilter(authenticationManager());
+        loginFilter.setFilterProcessesUrl("/api/member/login");
+        loginFilter.setAuthenticationSuccessHandler(formLoginSuccessHandler());
+        loginFilter.afterPropertiesSet();
+        return loginFilter;
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
 
     // h2-console 사용에 대한 허용 (CSRF, FrameOptions 무시)
     @Override

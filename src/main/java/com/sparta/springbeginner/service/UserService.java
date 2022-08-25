@@ -7,7 +7,9 @@ import com.sparta.springbeginner.jwt.JwtTokenUtils;
 import com.sparta.springbeginner.provider.FormLoginAuthProvider;
 import com.sparta.springbeginner.provider.JwtAuthProvider;
 import com.sparta.springbeginner.repository.UserRepository;
+import com.sparta.springbeginner.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.sparta.springbeginner.domain.User;
@@ -81,6 +83,10 @@ public class UserService {
         User user = userRepository.findByNickname(requestDto.getUsername()).orElseThrow(
                 () -> new RuntimeException("사용자가 존재하지 않습니다.")
         );
-        TokenDto tokenDto = jwtTokenUtils.
+        TokenDto tokenDto = jwtTokenUtils.generateJwtToken(new UserDetailsImpl(user));
+        response.addHeader("Access-Token",tokenDto.getAccessToken());
+        response.addHeader("Refresh-Token",tokenDto.getRefreshToken());
+
+        return ResponseDto.success(user);
     }
 }

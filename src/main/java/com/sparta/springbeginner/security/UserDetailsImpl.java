@@ -26,7 +26,7 @@ public class UserDetailsImpl implements UserDetails {
     // DB에서 가져온 Userdetails랑 로그인 시오한거랑 일치하는지 비교할때 필요
     @Override
     public String getUsername() {
-        return user.getNickname();
+        return user.getUsername();
     }
     //여기 아래부터는 설명 안해줌;;
     @Override
